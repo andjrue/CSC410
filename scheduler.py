@@ -167,7 +167,7 @@ if options.solve == True:
         for i in joblist:
             job_num = i[0]
             turnaround[job_num] = 0.0
-            response[job_num] = -1  # Flags jobs that have not run
+            response[job_num] = -1  # Flags jobs that have not run, stolen from RR
             wait[job_num] = 0.0
             remaining_time[job_num] = i[1]
             job_arrival_time[job_num] = i[2]
@@ -184,13 +184,13 @@ if options.solve == True:
                     job_number] > 0 and job_number not in jobs_in_heap:
                     heapq.heappush(heap, (remaining_time[job_number], job_number))
                     jobs_in_heap.add(job_number)
-                    print(f"Objects added to Heap: {heap}")
+                    # print(f"Objects added to Heap: {heap}")
 
             if heap:
                 runtime, job_number = heapq.heappop(heap)
-                print(f"Objects removed from Heap: {heap}")
+                # print(f"Objects removed from Heap: {heap}")
                 jobs_in_heap.remove(job_number)
-                print(f"Jobs currently in Heap: {jobs_in_heap}")
+                # print(f"Jobs currently in Heap: {jobs_in_heap}")
 
                 if response[job_number] == -1:  # If the job hasn't run yet...
                     response[job_number] = the_time  # ...set the response to the current time
@@ -202,8 +202,8 @@ if options.solve == True:
                 if remaining_time[job_number] == 0:
                     completion_time[job_number] = the_time
                     turnaround[job_number] = completion_time[job_number] - job_arrival_time[job_number]
-                    print(f"Job {job_number} is complete!")
-                    job_count -= 1  # Need to substract the job here, otherwise we never break the while loop
+                    print(f"Job {job_number} is complete!") # I like this addition, jobs completing jumps out at you
+                    job_count -= 1  # Need to subtract the job here, otherwise we never break the while loop
 
                 else:
                     heapq.heappush(heap, (remaining_time[job_number], job_number))
@@ -233,7 +233,7 @@ if options.solve == True:
             responseSum / count, turnaroundSum / count, waitSum / count))
 
     # I believe the math is mathing correctly here. I've been through a bunch of test cases and haven't noticed anything unusual.
-
+    # There might have been a few debugging statements that I didn't comment out, apologies if it prints incorrectly.
     # STCF ends here
 
 if options.policy != 'FIFO' and options.policy != 'SJF' and options.policy != 'RR' and options.policy != 'STCF':
