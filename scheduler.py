@@ -42,8 +42,8 @@ joblist = []
 if options.jlist == '':
   for jobnum in range(0, options.jobs):
     # Added Run Time and Start Time for debugging, makes the sort easier later on
-    runtime = 'Run Time: ' + str(int(options.maxlen * random.random()) + 1)
-    starttime = 'Start Time: ' + str(int(options.maxlen * random.random()))
+    runtime = int(options.maxlen * random.random()) + 1
+    starttime = int(options.maxlen * random.random())
     joblist.append([jobnum, runtime, starttime])
     print('  Job', jobnum, '( length = ' + str(runtime) + ')', '(Start Time = ' + str(starttime) + ')')
 else:
@@ -152,6 +152,7 @@ if options.solve == True:
     response = {}
     wait = {}
     remaining_time = {}  # Need a place to hold remaining time
+    job_arrival_time = {}
     thetime = 0.0
     jobcount = len(joblist)
 
@@ -161,6 +162,7 @@ if options.solve == True:
       wait[job_number] = 0.0
       turnaround[job_number] = 0.0
       response[job_number] = -1
+      job_arrival_time[job_number] = job[2]
       # print(remaining_time)
       # print(wait)
       # print(turnaround)
@@ -180,7 +182,23 @@ if options.solve == True:
       exaclty which order the jobs will be received. The rest of the problem is some simple math.  
       '''
 
+      available_jobs = []
+      for job in joblist:
+        job_number = job[0]
+        if job_arrival_time[job_number] <= thetime and remaining_time[job_number] > 0:
+          available_jobs.append(job)
+      print(available_jobs)
+
+      if available_jobs:
+        available_jobs.sort(key=lambda x: remaining_time[x[0]])
+        current_job = available_jobs[0]
+        job_number = current_job[0]
+        runtime = remaining_time[job_number]
+
+
+
       print(runlist)
+
       # for i in runlist:
 
     # jobnum = job[0]
