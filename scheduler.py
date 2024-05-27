@@ -180,8 +180,7 @@ if options.solve == True:
         while job_count > 0:
             for job in joblist:
                 job_number = job[0]
-                if job_arrival_time[job_number] <= the_time and remaining_time[
-                    job_number] > 0 and job_number not in jobs_in_heap:
+                if job_arrival_time[job_number] <= the_time and remaining_time[job_number] > 0 and job_number not in jobs_in_heap:
                     heapq.heappush(heap, (remaining_time[job_number], job_number))
                     jobs_in_heap.add(job_number)
                     # print(f"Objects added to Heap: {heap}")
