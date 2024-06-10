@@ -1,5 +1,6 @@
 import threading
 import time
+import random
 
 class Philosopher(threading.Thread):
   def __init__ (self, phil_number, forks, food_lock):
@@ -10,76 +11,41 @@ class Philosopher(threading.Thread):
     self.food_lock = food_lock
 
   def run(self):
+    left_fork = self.phil_number
+    right_fork = (self.phil_number + 1) % len(self.forks)
     global food
     while food > 0:
-      if self.phil_number % 2 == 0:
-        self.run_even()
+      if self.forks[left_fork].acquire(False):
+        print(f"Philosopher {self.phil_number} has grabbed the left fork")
+        if self.forks[right_fork].acquire(False):
+          print(f"Philosopher {self.phil_number} is now holding both forks")
+
+          with self.food_lock:
+            global food_eaten_by_philosopher
+            if food > 0:
+              print(f"Philsopher {self.phil_number} is eating")
+              food -= 1
+              food_eaten_by_philosopher[self.phil_number] += 1
+
+          self.forks[left_fork].release()
+          self.forks[right_fork].release()
+
+          print(f"Philosopher {self.phil_number} has released their forks")
+        else:
+          print(f"{self.phil_number} was not able to grab the right fork, they will wait and try again")
+          self.forks[left_fork].release()
+          time.sleep(random.random())
+          self.run()
       else:
-        self.run_odd()
-      time.sleep(1)
-
-    nl = "\n"
-    print(f"All food eaten.{nl}{food_eaten_by_philosopher}")
-
-  def run_even(self):
-    left_fork = self.phil_number
-    right_fork = (self.phil_number + 1) % len(self.forks)
-
-
-    self.forks[left_fork].acquire()
-    print(f"{self.phil_number} has grabbed the left fork")
-    self.forks[right_fork].acquire()
-    print(f"{self.phil_number} has grabbed the right fork")
-
-    with self.food_lock:
-      global food
-      global food_eaten_by_philosopher
-      if food > 0:
-        print(f"{self.phil_number} is eating")
-        food -= 1
-        food_eaten_by_philosopher[self.phil_number] += 1
-
-    self.forks[left_fork].release()
-    self.forks[right_fork].release() # Need to let the forks go
-
-    print(f"{self.phil_number} has released their forks")
-
-  def run_odd(self):
-    left_fork = self.phil_number
-    right_fork = (self.phil_number + 1) % len(self.forks)
-
-    if self.forks[left_fork].acquire(False):
-      print(f"{self.phil_number} has grabbed the left fork")
-      if self.forks[right_fork].acquire(False):
-        print(f"{self.phil_number} has picked up the right stick")
-
-        with self.food_lock:
-          global food
-          global food_eaten_by_philosopher
-          if food > 0:
-            print(f"{self.phil_number} is eating")
-            food -= 1
-            food_eaten_by_philosopher[self.phil_number] += 1
-
-        self.forks[left_fork].release()
-        self.forks[right_fork].release()
-
-        print(f"{self.phil_number} has released their forks")
-      else:
-        print(f"{self.phil_number} was not able to grab the right fork, they will wait and try again")
-        self.forks[left_fork].release()
-        time.sleep(1)
+        print(f"{self.phil_number} was not able to grab the left fork, they will wait and try again")
+        time.sleep(random.random())
         self.run()
-    else:
-      print(f"{self.phil_number} was not able to grab the left fork, they will wait and try again")
-      time.sleep(1)
-      self.run()
-
+      time.sleep(random.random())
 
 forks = []
 philosophers = []
 
-food_eaten_by_philosopher = { # I wanted to map all food eaten to make sure there was as even a distro as possible
+food_eaten_by_philosopher = { # I wanted to map all food eaten to make sure distro was even
   0: 0,
   1: 0,
   2: 0,
@@ -88,7 +54,7 @@ food_eaten_by_philosopher = { # I wanted to map all food eaten to make sure ther
 }
 
 number_of_phil = 5
-food = 500
+food = 250
 food_lock = threading.Lock()
 
 for i in range(number_of_phil):
