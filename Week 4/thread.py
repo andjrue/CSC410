@@ -15,6 +15,26 @@ class Philosopher(threading.Thread):
     right_fork = (self.phil_number + 1) % len(self.forks)
     global food
     while food > 0:
+
+      """
+      We add these if statements to check if both forks are obtainable. If they are not,
+      we put the philsopher to sleep and make then try again at a random interval.
+      I found this approach the easiest. It's almost like this Dijkstra guy knew what we was talking about.
+
+      Initially I thought an odd and even strategy would be best with the philsophers. Evens being greedy and always
+      holding one fork, odds being generous and releasing the fork they were holding if they could not obtain the other.
+      This was nice, but it was a lot more code to write. It also doesn't seem to be as fair.
+
+      Here is a link to my GitHub history with the original implementation if you'd like to take a look:
+        -> https://github.com/andjrue/CSC410/commit/62aaf0e0b88ef2edaadba5c3baf72d19ad041361
+
+      The distribution for the method below is much more balanced, and appears to get better as the "amount of food"
+      increases.
+
+      I also intially put all of the sleeps to 1 second, but it took forever to run. random.random() makes it
+      much quicker and more testable.
+      """
+
       if self.forks[left_fork].acquire(False):
         print(f"Philosopher {self.phil_number} has grabbed the left fork")
         if self.forks[right_fork].acquire(False):
@@ -54,7 +74,7 @@ food_eaten_by_philosopher = { # I wanted to map all food eaten to make sure dist
 }
 
 number_of_phil = 5
-food = 250
+food = 50
 food_lock = threading.Lock()
 
 for i in range(number_of_phil):
@@ -83,5 +103,8 @@ This video helped a lot, it gave me the idea to run even and odd philosophers at
 
 I also used the threading documentation directly from Python
 -> https://docs.python.org/3/library/threading.html
+
+Dijkstra's solution
+-> https://www.geeksforgeeks.org/dining-philosopher-problem-using-semaphores/
 
 """
