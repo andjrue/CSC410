@@ -9,8 +9,8 @@ import random
   # Should also have get_forks, put_forks methods -> Done
 
 """
-I tried my best to write an original solution to this problem. After a bunch of research, I thought the "leave on philosopher
-out" approach would be best. The semaphore below ensures the only 4 philosophers can attempt to pick up forks at one time,
+I tried my best to write an original solution to this problem. After a bunch of research, I thought the "leave one philosopher
+out" approach would be best. The semaphore below ensures that only 4 philosophers can attempt to pick up forks at one time,
 this removes the potential for deadlock.
 """
 
@@ -76,6 +76,7 @@ number_of_phil = 5
 FOOD = 500
 food_lock = threading.Lock()
 permission = threading.Semaphore(4) # https://www.geeksforgeeks.org/synchronization-by-using-semaphore-in-python/
+# This gave me the idea for leaving one philsopher out and using Semaphores
 
 for i in range(number_of_phil):
   forks.append(threading.Lock())
@@ -91,7 +92,7 @@ for phil in philosophers:
 
 
 nl = "\n"
-print(f"All food eaten.{nl}{food_eaten_by_philosopher}{nl}")
+print(f"All food eaten.{nl}{food_eaten_by_philosopher}")
 
 """
 Bibliography:
