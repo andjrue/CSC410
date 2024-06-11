@@ -2,6 +2,12 @@ import threading
 import time
 import random
 
+# Requirements:
+  # Prints a message when the Philosopher is hungry -> Done
+  # begins eating, swaps forks, and finishes eating -> Done
+  # Eating takes a random time -> Done
+  # Should also have get_forks, put_forks methods -> Done
+
 class Philosopher(threading.Thread):
   def __init__ (self, phil_number, forks, food_lock):
     threading.Thread.__init__(self) # https://stackoverflow.com/questions/7445742/runtimeerror-thread-init-not-called-when-subclassing-threading-thread
@@ -9,63 +15,76 @@ class Philosopher(threading.Thread):
     self.forks = forks
     self.food_eaten_by_philosopher = food_eaten_by_philosopher
     self.food_lock = food_lock
+    self.interruptions = interruptions
 
-  def run(self):
+  def get_forks(self):
     left_fork = self.phil_number
     right_fork = (self.phil_number + 1) % len(self.forks)
+    flag = False
+
+    if self.forks[left_fork].acquire(False):
+        print(f"Philosopher {self.phil_number} has grabbed the left fork")
+        flag = True
+    else:
+        print(f"Philosopher {self.phil_number} was not able to grab the left fork. They will try again later.")
+        time.sleep(random.random())
+
+    if flag:
+      if self.forks[right_fork].acquire(False):
+        print(f"Philosopher {self.phil_number} has grabbed the right fork")
+        return True
+      else:
+        print(f"Philosopher {self.phil_number} was not able to grab the right fork. They will try again later.")
+        self.put_forks()
+        self.interruptions[self.phil_number] += 1
+        time.sleep(random.random())
+        return False
+    self.interruptions[self.phil_number] += 1
+    return False
+
+  def put_forks(self):
+    left_fork = self.phil_number
+    right_fork = (self.phil_number + 1) % len(self.forks)
+
+    if self.forks[left_fork].locked():
+      self.forks[left_fork].release()
+    if self.forks[right_fork].locked():
+      self.forks[right_fork].release()
+
+    time.sleep(random.random())
+
+  def run(self):
     global food
     while food > 0:
-
-      """
-      We add these if statements to check if both forks are obtainable. If they are not,
-      we put the philsopher to sleep and make then try again at a random interval.
-      I found this approach the easiest. It's almost like this Dijkstra guy knew what we was talking about.
-
-      Initially I thought an odd and even strategy would be best with the philsophers. Evens being greedy and always
-      holding one fork, odds being generous and releasing the fork they were holding if they could not obtain the other.
-      This was nice, but it was a lot more code to write. It also doesn't seem to be as fair.
-
-      Here is a link to my GitHub history with the original implementation if you'd like to take a look:
-        -> https://github.com/andjrue/CSC410/commit/62aaf0e0b88ef2edaadba5c3baf72d19ad041361
-
-      The distribution for the method below is much more balanced, and appears to get better as the "amount of food"
-      increases.
-
-      I also intially put all of the sleeps to 1 second, but it took forever to run. random.random() makes it
-      much quicker and more testable.
-      """
-
-      if self.forks[left_fork].acquire(False):
-        print(f"Philosopher {self.phil_number} has grabbed the left fork")
-        if self.forks[right_fork].acquire(False):
-          print(f"Philosopher {self.phil_number} is now holding both forks")
-
-          with self.food_lock:
-            global food_eaten_by_philosopher
-            if food > 0:
-              print(f"Philsopher {self.phil_number} is eating")
-              food -= 1
-              food_eaten_by_philosopher[self.phil_number] += 1
-
-          self.forks[left_fork].release()
-          self.forks[right_fork].release()
-
-          print(f"Philosopher {self.phil_number} has released their forks")
-        else:
-          print(f"{self.phil_number} was not able to grab the right fork, they will wait and try again")
-          self.forks[left_fork].release()
-          time.sleep(random.random())
-          self.run()
+      print(f"Philosopher {self.phil_number} is hungry")
+      if self.get_forks(): # If these return True, do below
+        with self.food_lock:
+          global food_eaten_by_philosopher
+          if food > 0:
+            print(f"Philosopher {self.phil_number} is eating")
+            food -= 1
+            food_eaten_by_philosopher[self.phil_number] += 1
+            time.sleep(random.random()) # Sleep a random amount of time after eating
+            print(f"Philosopher {self.phil_number} has finished eating")
+            self.put_forks()
       else:
-        print(f"{self.phil_number} was not able to grab the left fork, they will wait and try again")
+        print(f"Philosopher {self.phil_number} is not able to grab both forks. They will wait and try again.")
+        self.interruptions[self.phil_number] += 1
         time.sleep(random.random())
-        self.run()
       time.sleep(random.random())
 
 forks = []
 philosophers = []
 
 food_eaten_by_philosopher = { # I wanted to map all food eaten to make sure distro was even
+  0: 0,
+  1: 0,
+  2: 0,
+  3: 0,
+  4: 0
+}
+
+interruptions = { # Using this to track the viability of the solution
   0: 0,
   1: 0,
   2: 0,
@@ -91,7 +110,7 @@ for phil in philosophers:
 
 
 nl = "\n"
-print(f"All food eaten.{nl}{food_eaten_by_philosopher}")
+print(f"All food eaten.{nl}{food_eaten_by_philosopher}{nl}{interruptions}")
 
 
 
