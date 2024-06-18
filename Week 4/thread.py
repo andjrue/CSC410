@@ -73,7 +73,7 @@ food_eaten_by_philosopher = { # I wanted to map all food eaten to make sure dist
 }
 
 number_of_phil = 5
-FOOD = 500
+FOOD = 5000
 food_lock = threading.Lock()
 permission = threading.Semaphore(4) # https://www.geeksforgeeks.org/synchronization-by-using-semaphore-in-python/
 # This gave me the idea for leaving one philsopher out and using Semaphores
@@ -100,4 +100,7 @@ Bibliography:
 Not listed anywhere specifically are the official Python docs, I referenced these quite a bit
 -> https://docs.python.org/3/library/threading.html
 
+Stallings Solution:
+->
+https://en.wikipedia.org/wiki/Dining_philosophers_problem#:~:text=Concurrent%20algorithm%20design-,Limiting%20the%20number%20of%20diners%20in%20the%20table,requests%20access%20to%20any%20fork.
 """
