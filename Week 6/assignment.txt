@@ -1,0 +1,42 @@
+Completion requirements
+
+In this homework, we'll take a look at data integrity and the role checksums play.
+This assignment is built off of the assignment in the reading on file integrity.
+However, there are some differences between the question sets--so please refer to the exercises on this page.
+
+To complete the assignment, download the checksum simulator from the course Moodle page. Use the simulator to answer the following questions:
+
+1. Give a brief description of how to compute the additive, XOR-based, and Fletcher checksums.
+   Check that your description is accurate by using the checksum.py simulator.
+
+XOR:
+  the checksum is computed by XOR'ing each chunk of the data block being checksummed, which produces a single value that represents the XOR of the entire block.
+  XOR does have limitations. If two bits in the same position within each checksummed unit change, the corruption will not be detected.
+
+Additive:
+  Performs 2's-complement addition over each chunk of data, also ignores overflow. It can detect many changes in the data, but does not work if the data
+  is shifted.
+
+Fletcher Checksum:
+  The computation of two check bytes, s1 and s2. The book uses the example as follows: Block D consists of bytes d1 ... dn;
+  s1 definition -> s1 = (s1 + di) % 255. s2 -> s2 = (s2 + s1) % 255
+
+
+2. Is it possible to pass a 4-byte data value (using the -D flag), that does not contain any zeroes,
+   and leads to the additive and XOR-based checksum having the same value? If so, under what conditions does this occur?
+
+   I think this would be impossible, but incredibly rare given the nature of the two methods.
+
+3. Use the simulator to compute checksums twice (once each for a different set of numbers. The sets should not share any common numbers).
+   Find two sets of numbers that produce the same additive checksum. Give a brief description of when the additive checksum will be the same, even though the data values are different.
+
+
+
+4. Repeat Exercise 3 for the XOR checksum.
+
+5. Compute the different checksums for the data set -D 1,2,3,4. Compare computing these checksums against -D 4,3,2,1.
+   Give a brief description of what you observe. How is Fletcher generally "better" than the additive checksum?
+
+6. Find a set of data values that all yield the same Fletcher checksum. In general, when does this occur?
+
+Last modified: Monday, June 19, 2023, 12:06 PM
