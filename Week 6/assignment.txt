@@ -30,13 +30,36 @@ Fletcher Checksum:
 3. Use the simulator to compute checksums twice (once each for a different set of numbers. The sets should not share any common numbers).
    Find two sets of numbers that produce the same additive checksum. Give a brief description of when the additive checksum will be the same, even though the data values are different.
 
+   I used the sets [2,4,6] & [1,8,3]. Both of these outputs produced an additive checksum of 12. Due to its additive nature,
+   any data sets that add up to the same total will reproduce the same result.
 
 
 4. Repeat Exercise 3 for the XOR checksum.
 
+   I found that [11,6] and [10,7] produced the same XOR checksum. After converting them to binary, and finding a binary XOR truth table online (https://www.geeksforgeeks.org/xor-gate/), I understand why this
+   calulcation happens.
+
+   10 -> 1010
+   7 ->  0111
+  ------------
+         1101
+
+   11 -> 1011
+   6 ->  0110
+  -----------
+         1101
+
 5. Compute the different checksums for the data set -D 1,2,3,4. Compare computing these checksums against -D 4,3,2,1.
    Give a brief description of what you observe. How is Fletcher generally "better" than the additive checksum?
 
+   This example makes Flectehers sensitivity to order very clear. Because of this, it will catch errors that the addtitive
+   method does not, as order doesn't matter when doing the additive calculation. While Flethcer is not as efficient as additive,
+   the trade off for error catching is one worth making in most cases.
+
 6. Find a set of data values that all yield the same Fletcher checksum. In general, when does this occur?
+
+ My answer for this is going to be similar to my answer for number 2. I'm sure that you could do this,
+ but finding the answer would be a difficult exercise. For this to happen, we would need the data sets to produce the same
+ sum 1 and sum 2, and also have the same value when modded by 255.
 
 Last modified: Monday, June 19, 2023, 12:06 PM
